@@ -13,7 +13,7 @@ services:
       WORDPRESS_DB_PASSWORD: ${MYSQL_PASS}
       WORDPRESS_DB_NAME: ${MYSQL_DBNAME}
     volumes:
-      - ./src:/var/www/html
+      - ${PWD}/src:/var/www/html
 
   db:
     image: mariadb:10.6
@@ -28,3 +28,4 @@ services:
 
 volumes:
   db:
+  wordpress:
