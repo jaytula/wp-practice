@@ -17,6 +17,7 @@ services:
 
   db:
     image: mariadb:10.6
+    container_name: wp-practice_db_1
     restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DBNAME}
