@@ -23,6 +23,7 @@
         </div>
         <div class="generic-content"><?php the_content() ?></div>
 
+
         <?php $today = date('Ymd'); ?>
         <?php $events_query = new WP_Query(array(
             'posts_per_page' => -1,
@@ -44,6 +45,10 @@
                 )
             )
         )); ?>
+        
+        <?php if($events_query->have_posts()): ?>
+        <hr class="section-break">
+        <h2 class="headline headline--medium">Upcoming <?= get_the_title() ?> Events</h2>
         <?php while ($events_query->have_posts()) : ?>
             <?php $events_query->the_post(); ?>
             <div class="event-summary">
@@ -61,7 +66,9 @@
                 </div>
             </div>
         <?php endwhile; ?>
+        <?php endif; ?>
         <?php wp_reset_postdata(); ?>
+        
     </div>
 <?php endwhile; ?>
 
