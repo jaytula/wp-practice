@@ -5,16 +5,31 @@
     <div class="page-banner__content container container--narrow">
         <!-- <?php $title = is_category() ? single_cat_title('', false) : 'Posts by ' . get_the_author(); ?> -->
         <?php $title = get_the_archive_title() ?>
-        <h1 class="page-banner__title">All Events</h1>
+        <h1 class="page-banner__title">Past Events</h1>
         <div class="page-banner__intro">
-            See what is going on in our world.
+            A recap of our past events.
         </div>
     </div>
 </div>
 
 <div class="container container--narrow page-section">
-    <?php while (have_posts()) : ?>
-        <?php the_post(); ?>
+    <?php
+    $today = date('Ymd');
+    $query = new WP_Query(array(
+        'paged' => get_query_var('paged', 1),
+        'post_type' => 'event',
+        'meta_key' => 'event_date',
+        'orderby' => 'meta_value_num',
+        'meta_query' => array(
+            'key' => 'event_date',
+            'compare' => '<',
+            'value' => $today,
+            'type' => 'numeric'
+        )
+    ));
+    ?>
+    <?php while ($query->have_posts()) : ?>
+        <?php $query->the_post(); ?>
         <?php $event_date = new DateTime(get_field('event_date')); ?>
         <div class="event-summary">
             <a class="event-summary__date t-center" href="#">
@@ -27,9 +42,9 @@
             </div>
         </div>
     <?php endwhile; ?>
-    <?php echo paginate_links() ?>
-    <hr class="section-break">
-    <p>Looking for a recap of past events? <a href="<?= site_url('past-events') ?>">Check out our past events archive</a>.
+    <?php echo paginate_links(array(
+        'total' => $query->max_num_pages
+    )) ?>
 </div>
 
 <?php get_footer(); ?>
