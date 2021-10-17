@@ -1,7 +1,5 @@
 <?php get_header(); ?>
 
-
-
 <?php while (have_posts()) : ?>
     <?php the_post(); ?>
     <div class="page-banner">
@@ -22,11 +20,34 @@
             </p>
         </div>
         <div class="generic-content"><?php the_content() ?></div>
-
+        <?php $professors_query = new WP_Query(array(
+            'posts_per_page' => -1,
+            'post_type' => 'professor',
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'meta_query' => array(
+                array(
+                    'key' => 'related_programs',
+                    'compare' => 'LIKE',
+                    'value' => '"' . get_the_ID() . '"'
+                )
+            )
+        )); ?>
+        
+        <?php if($professors_query->have_posts()): ?>
+        <hr class="section-break">
+        <h2 class="headline headline--medium"><?php the_title(); ?> Professors</h2>
+        <?php while ($professors_query->have_posts()) : ?>
+            <?php $professors_query->the_post(); ?>
+            <li><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></li>
+        <?php endwhile; ?>
+        <?php endif; ?>
+        <?php wp_reset_postdata(); ?>
+        
 
         <?php $today = date('Ymd'); ?>
         <?php $events_query = new WP_Query(array(
-            'posts_per_page' => -1,
+            'posts_per_page' => 2,
             'post_type' => 'event',
             'meta_key' => 'event_date',
             'orderby' => 'meta_value_num',
