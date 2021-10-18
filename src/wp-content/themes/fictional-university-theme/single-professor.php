@@ -5,11 +5,12 @@
 <?php while (have_posts()) : ?>
     <?php the_post(); ?>
     <div class="page-banner">
-        <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/ocean.jpg') ?>)"></div>
+        <?php $page_banner_image = get_field('page_banner_image_background'); ?>
+        <div class="page-banner__bg-image" style="background-image: url(<?php echo $page_banner_image['sizes']['pageBanner']  ?>)"></div>
         <div class="page-banner__content container container--narrow">
             <h1 class="page-banner__title"><?php the_title(); ?></h1>
             <div class="page-banner__intro">
-                <p>Don't forget to replace me later.</p>
+                <p><?php the_field('page_banner_subtitle') ?></p>
             </div>
         </div>
     </div>
