@@ -5,7 +5,7 @@ function pageBanner($args=NULL)
   $title = $args['title'] ?? get_the_title();
   $subtitle = $args['subtitle'] ?? get_field('page_banner_subtitle');
   $photo_url = $args['photo'] ?? get_theme_file_uri('/images/ocean.jpg');
-  if(!$args['photo']) {
+  if(!$args['photo'] && !is_archive() && !is_home()) {
     $page_banner_image = get_field('page_banner_image_background');
     if($page_banner_image) {
       $photo_url = $page_banner_image['sizes']['pageBanner'];
