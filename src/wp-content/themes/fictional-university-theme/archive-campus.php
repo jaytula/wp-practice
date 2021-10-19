@@ -11,9 +11,11 @@ pageBanner(array(
         <?php while (have_posts()) : ?>
             <?php the_post(); ?>
             <?php $mapLocation = get_field('map_location'); ?>
-            <div class="marker" data-lat="<?= $mapLocation['lat'] ?>" data-lng="<?= $mapLocation['lng'] ?>"></div>
+            <div class="marker" data-lat="<?= $mapLocation['lat'] ?>" data-lng="<?= $mapLocation['lng'] ?>">
+              <h3><a href="<?php the_permalink() ?>"><?php the_title() ?></a></h3>
+              <?= $mapLocation['address'] ?>
+            </div>
         <?php endwhile; ?>
-        <?php echo paginate_links() ?>
     </div>
 </div>
 
