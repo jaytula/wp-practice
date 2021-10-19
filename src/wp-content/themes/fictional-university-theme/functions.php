@@ -26,6 +26,8 @@ function pageBanner($args=NULL)
 
 function university_files()
 {
+  $googleMapKey = getenv('GOOGLE_MAPS_API_KEY');
+  wp_enqueue_script('googleMap', "//maps.googleapis.com/maps/api/js?key=$googleMapKey", NULL, '1.0', true);
   wp_enqueue_script('main-university-js', get_theme_file_uri('/build/index.js'), array(
     'jquery'
   ), '1.0', true);
