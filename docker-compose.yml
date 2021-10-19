@@ -27,6 +27,14 @@ services:
     volumes:
       - db:/var/lib/mysql
 
+  theme-builder:
+    build:
+      context: .
+      dockerfile: theme-builder/Dockerfile
+    volumes:
+      - ${PWD}/src/wp-content/themes/fictional-university-theme:/usr/src/app
+      
+
 volumes:
   db:
   wordpress:
