@@ -1,5 +1,25 @@
 <?php
-function university_post_types() {
+function university_post_types()
+{
+  // Campus Post Type
+  register_post_type('campus', array(
+    'supports' => array('title', 'editor', 'excerpt'),
+    'rewrite' => array(
+      'slug' => 'campuses'
+    ),
+    'public' => true,
+    'has_archive' => true,
+    'show_in_rest' => true,
+    'labels' => array(
+      'name' => 'Campuses',
+      'add_new_item' => 'Add New Campus',
+      'edit_item' => 'Edit Campus',
+      'all_items' => 'All Campuses',
+      'singular_name' => 'Campus'
+    ),
+    'menu_icon' => 'dashicons-location-alt'
+  ));
+
   // Event Post Type
   register_post_type('event', array(
     'supports' => array('title', 'editor', 'excerpt'),
@@ -17,7 +37,7 @@ function university_post_types() {
       'singular_name' => 'Event'
     ),
     // Look up icon code at https://developer.wordpress.org/resource/dashicons
-    'menu_icon' => 'dashicons-calendar' 
+    'menu_icon' => 'dashicons-calendar'
   ));
 
   // Program Post Type
