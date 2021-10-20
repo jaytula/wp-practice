@@ -67,8 +67,8 @@ class Search {
 
   getResults() {
     /**
-     * 
-     * @param {'post' | 'pages'} postType 
+     *
+     * @param {'post' | 'pages'} postType
      * @returns {Promise<{link: string, title: {rendered: string}}[]>}
      */
     const fetchData = async (postType) => {
@@ -83,17 +83,20 @@ class Search {
     };
 
     const fetchAll = async () => {
-      const allPosts = await fetchData('posts');
-      const allPages = await fetchData('pages');
+      const [allPosts, allPages] = await Promise.all([
+        fetchData("posts"),
+        fetchData("pages"),
+      ]);
 
       return [...allPosts, ...allPages];
-    }
+    };
 
-    fetchAll().then((posts) => {
-      const listItems = posts.map(
-        (item) => `<li><a href="${item.link}">${item.title.rendered}</a></li>`
-      );
-      this.resultsDiv.innerHTML = `
+    fetchAll()
+      .then((posts) => {
+        const listItems = posts.map(
+          (item) => `<li><a href="${item.link}">${item.title.rendered}</a></li>`
+        );
+        this.resultsDiv.innerHTML = `
       <h2 class="search-overlay__section-title">General Information</h2>
       ${
         posts.length
@@ -103,8 +106,11 @@ class Search {
         ${listItems.join("")}
       ${posts.length ? "</ul>" : ""}
       `;
-      this.isSpinnerVisible = false;
-    });
+        this.isSpinnerVisible = false;
+      })
+      .catch((err) => {
+        this.resultsDiv.innerHTML = "<p>Unexpected error</p>";
+      });
   }
 
   /**
@@ -130,10 +136,10 @@ class Search {
   openOverlay() {
     this.searchOverlay.classList.add("search-overlay--active");
     document.body.classList.add("body-no-scroll");
-    this.searchField.value = ''
+    this.searchField.value = "";
     setTimeout(() => {
       this.searchField.focus();
-    }, 301)
+    }, 301);
     this.isOverlayOpen = true;
   }
 
@@ -145,7 +151,9 @@ class Search {
   }
 
   addSearchHTML() {
-    document.body.insertAdjacentHTML('beforeend', `
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `
     <div class="search-overlay">
       <div class="search-overlay__top">
         <div class="container">
@@ -158,7 +166,8 @@ class Search {
         <div id="search-overlay__results"></div>
       </div>
     </div>
-    `);
+    `
+    );
   }
 }
 
