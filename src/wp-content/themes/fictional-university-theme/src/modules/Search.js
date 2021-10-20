@@ -66,18 +66,30 @@ class Search {
   }
 
   getResults() {
-    const fetchData = async () => {
+    /**
+     * 
+     * @param {'post' | 'pages'} postType 
+     * @returns {Promise<{link: string, title: {rendered: string}}[]>}
+     */
+    const fetchData = async (postType) => {
       const searchParams = new URLSearchParams();
       searchParams.set("search", this.searchField.value);
       const response = await fetch(
         `${
           universityData.root_url
-        }/wp-json/wp/v2/posts?${searchParams.toString()}`
+        }/wp-json/wp/v2/${postType}?${searchParams.toString()}`
       );
       return response.json();
     };
 
-    fetchData().then((posts) => {
+    const fetchAll = async () => {
+      const allPosts = await fetchData('posts');
+      const allPages = await fetchData('pages');
+
+      return [...allPosts, ...allPages];
+    }
+
+    fetchAll().then((posts) => {
       const listItems = posts.map(
         (item) => `<li><a href="${item.link}">${item.title.rendered}</a></li>`
       );
