@@ -67,18 +67,19 @@ class Search {
     const fetchData = async () => {
       const searchParams = new URLSearchParams();
       searchParams.set('search', this.searchField.value)
-      const response = await fetch(`/wp-json/wp/v2/posts?${searchParams.toString()}`);
+      const response = await fetch(`${universityData.root_url}/wp-json/wp/v2/posts?${searchParams.toString()}`);
       return response.json();
     }
 
-    fetchData().then(data => {
-      const listItems = data.map(item => `<li><a href="${item.link}">${item.title.rendered}</a></li>`);
+    fetchData().then(posts => {
+      const listItems = posts.map(item => `<li><a href="${item.link}">${item.title.rendered}</a></li>`);
       this.resultsDiv.innerHTML = `
       <h2 class="search-overlay__section-title">General Information</h2>
-      <ul class="link-list min-list">
+      ${posts.length ? `<ul class="link-list min-list">` : '<p>No general information matches that search</p>'}
         ${listItems.join('')}
-      </ul>
+      ${posts.length ? '</ul>' : ''}
       `;
+      this.isSpinnerVisible = false;
     })
   }
 
