@@ -64,8 +64,16 @@ class Search {
   }
 
   getResults() {
-    this.isSpinnerVisible = false;
-    this.resultsDiv.innerHTML = "Imagine real search results here...";
+    const fetchData = async () => {
+      const searchParams = new URLSearchParams();
+      searchParams.set('search', this.searchField.value)
+      const response = await fetch(`/wp-json/wp/v2/posts?${searchParams.toString()}`);
+      return response.json();
+    }
+
+    fetchData().then(data => {
+      this.resultsDiv.innerHTML = data[0]['title']['rendered']
+    })
   }
 
   /**
