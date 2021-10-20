@@ -72,7 +72,13 @@ class Search {
     }
 
     fetchData().then(data => {
-      this.resultsDiv.innerHTML = data[0]['title']['rendered']
+      const listItems = data.map(item => `<li><a href="${item.link}">${item.title.rendered}</a></li>`);
+      this.resultsDiv.innerHTML = `
+      <h2 class="search-overlay__section-title">General Information</h2>
+      <ul class="link-list min-list">
+        ${listItems.join('')}
+      </ul>
+      `;
     })
   }
 
