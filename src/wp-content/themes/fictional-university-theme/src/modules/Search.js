@@ -69,7 +69,7 @@ class Search {
     /**
      *
      * @param {'post' | 'pages'} postType
-     * @returns {Promise<{link: string, title: {rendered: string}}[]>}
+     * @returns {Promise<{link: string, title: {rendered: string}, authorName?: string}[],>}
      */
     const fetchData = async (postType) => {
       const searchParams = new URLSearchParams();
@@ -94,7 +94,10 @@ class Search {
     fetchAll()
       .then((posts) => {
         const listItems = posts.map(
-          (item) => `<li><a href="${item.link}">${item.title.rendered}</a></li>`
+          (item) =>
+            `<li><a href="${item.link}">${item.title.rendered} ${
+              item.type === "posts" ? "by " + item.authorName : ""
+            }</a></li>`
         );
         this.resultsDiv.innerHTML = `
       <h2 class="search-overlay__section-title">General Information</h2>
