@@ -1,6 +1,8 @@
 class Search {
   // 1. describe and create/initial our object
   constructor() {
+    this.addSearchHTML();
+
     /**
      * @type {HTMLDivElement}
      */
@@ -59,28 +61,38 @@ class Search {
       this.resultsDiv.innerHTML = '<div class="spinner-loader"></div>';
       this.isSpinnerVisible = true;
     }
-    this.typingTimer = setTimeout(this.getResults.bind(this), 2000);
+    this.typingTimer = setTimeout(this.getResults.bind(this), 750);
     this.previousValue = this.searchField.value;
   }
 
   getResults() {
     const fetchData = async () => {
       const searchParams = new URLSearchParams();
-      searchParams.set('search', this.searchField.value)
-      const response = await fetch(`${universityData.root_url}/wp-json/wp/v2/posts?${searchParams.toString()}`);
+      searchParams.set("search", this.searchField.value);
+      const response = await fetch(
+        `${
+          universityData.root_url
+        }/wp-json/wp/v2/posts?${searchParams.toString()}`
+      );
       return response.json();
-    }
+    };
 
-    fetchData().then(posts => {
-      const listItems = posts.map(item => `<li><a href="${item.link}">${item.title.rendered}</a></li>`);
+    fetchData().then((posts) => {
+      const listItems = posts.map(
+        (item) => `<li><a href="${item.link}">${item.title.rendered}</a></li>`
+      );
       this.resultsDiv.innerHTML = `
       <h2 class="search-overlay__section-title">General Information</h2>
-      ${posts.length ? `<ul class="link-list min-list">` : '<p>No general information matches that search</p>'}
-        ${listItems.join('')}
-      ${posts.length ? '</ul>' : ''}
+      ${
+        posts.length
+          ? `<ul class="link-list min-list">`
+          : "<p>No general information matches that search</p>"
+      }
+        ${listItems.join("")}
+      ${posts.length ? "</ul>" : ""}
       `;
       this.isSpinnerVisible = false;
-    })
+    });
   }
 
   /**
@@ -106,7 +118,10 @@ class Search {
   openOverlay() {
     this.searchOverlay.classList.add("search-overlay--active");
     document.body.classList.add("body-no-scroll");
-    console.log("open ran");
+    this.searchField.value = ''
+    setTimeout(() => {
+      this.searchField.focus();
+    }, 301)
     this.isOverlayOpen = true;
   }
 
@@ -115,6 +130,23 @@ class Search {
     document.body.classList.remove("body-no-scroll");
     console.log("close ran");
     this.isOverlayOpen = false;
+  }
+
+  addSearchHTML() {
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="search-overlay">
+      <div class="search-overlay__top">
+        <div class="container">
+            <i class="fa fa-search search-overlay__icon" aria-hidden="true"></i>
+            <input autocomplete="off" spellcheck="false" type="text" class="search-term" placeholder="What are you looking for?" id="search-term">
+            <i class="fa fa-close search-overlay__close" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="container">
+        <div id="search-overlay__results"></div>
+      </div>
+    </div>
+    `);
   }
 }
 
