@@ -38,13 +38,7 @@
     <?php endif; ?>
 
     <div class="generic-content">
-      <form class="search-form" method="get" action="<?php echo esc_url(site_url('/')) ?>">
-        <label class="headine headline--medium" for="s">Perform a New Search:</label>
-        <div class="search-form-row">
-          <input class="s" type="search" name="s" id="s" placeholder="What are you looking for?">
-          <input class="search-submit" type="submit" value="Search">
-        </div>
-      </form>
+      <?php get_search_form() ?>
     </div>
   </div>
 <?php endwhile; ?>
