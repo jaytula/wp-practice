@@ -244,6 +244,7 @@ class Search {
       this.searchField.focus();
     }, 301);
     this.isOverlayOpen = true;
+    event.preventDefault();
   }
 
   closeOverlay() {
