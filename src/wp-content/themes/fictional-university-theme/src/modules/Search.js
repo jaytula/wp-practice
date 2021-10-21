@@ -182,7 +182,7 @@ class Search {
             <h2 class="search-overlay__section-title">Events</h2>
             ${
               results.events.length
-                ? ''
+                ? ""
                 : `<p>No events match that search</p> <a href="${
                     universityData.root_url + "/events"
                   }">View all campuses</a>`
