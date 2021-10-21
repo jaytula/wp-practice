@@ -10,7 +10,7 @@ class Search {
     /**
      * @type {HTMLSpanElement}
      */
-    this.openButton = document.querySelector(".search-trigger");
+    this.openButtons = document.querySelectorAll(".js-search-trigger");
     /**
      * @type {HTMLButtonElement}
      */
@@ -34,7 +34,9 @@ class Search {
 
   // 2. events
   events() {
-    this.openButton.addEventListener("click", this.openOverlay.bind(this));
+    this.openButtons.forEach((openButton) =>
+      openButton.addEventListener("click", this.openOverlay.bind(this))
+    );
     this.closeButton.addEventListener("click", this.closeOverlay.bind(this));
     document.addEventListener("keydown", this.keyPressDispatcher.bind(this));
     this.searchField.addEventListener("keyup", this.typingLogic.bind(this));
