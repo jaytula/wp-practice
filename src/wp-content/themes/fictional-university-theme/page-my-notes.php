@@ -1,0 +1,38 @@
+<?php
+if(!is_user_logged_in()) {
+  wp_redirect(esc_url(site_url('/')));
+  exit;
+}
+?>
+<?php get_header(); ?>
+
+<?php while(have_posts()): ?>
+    <?php the_post(); ?>
+    <?php pageBanner(array(
+      'subtitle' => 'Hello this is the subtitle',
+    )) ?>
+
+    <div class="container container--narrow page-section">
+      <ul class="min-list link-list" id="my-notes">
+        <?php
+        $notes_query = new WP_Query(array(
+          'post_type' => 'note',
+          'posts_per_page' => -1,
+          'author' => get_current_user_id(),
+        ));
+        ?>
+        <?php while($notes_query->have_posts()): ?>
+          <?php $notes_query->the_post(); ?>
+          <li>
+            <input class="note-title-field" type="text" value="<?= esc_attr(get_the_title()) ?>">
+            <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+            <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
+            <textarea class="note-body-field"><?= esc_attr(wp_strip_all_tags(get_the_content())) ?></textarea>
+          </li>
+        <?php endwhile; ?>
+        <?php wp_reset_postdata(); ?>
+      </ul>
+    </div>
+<?php endwhile; ?>
+
+<?php get_footer(); ?>
