@@ -23,6 +23,55 @@ class MyNotes {
         .querySelector(".update-note")
         .addEventListener("click", this.updateNote.bind(this, parent));
     });
+
+    document
+      .querySelector(".submit-note")
+      .addEventListener("click", this.createNote);
+  }
+
+  createNote() {
+    /**
+     * @type {HTMLInputElement}
+     */
+    const titleInput = document.querySelector(".new-note-title");
+    /**
+     * @type {HTMLTextAreaElement}
+     */
+    const bodyInput = document.querySelector(".new-note-body");
+
+    const body = {
+      title: titleInput.value,
+      content: bodyInput.value,
+      status: 'publish',
+    };
+
+    fetch(`${universityData.root_url}/wp-json/wp/v2/note`, {
+      method: "POST",
+      headers: {
+        "X-WP-Nonce": universityData.nonce,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        titleInput.value = '';
+        bodyInput.value = '';
+        const newListItem = document.createElement('li');
+
+        const newTitleInput = document.createElement('input');
+        newTitleInput.classList.add('note-title-field');
+        newTitleInput.setAttribute('type', 'text');
+        newTitleInput.setAttribute('readonly', 'readonly')
+        newTitleInput.value = body.content;
+
+        newListItem.appendChild(newTitleInput);
+
+        document.getElementById('my-notes').prepend(newListItem);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   /**
@@ -60,13 +109,13 @@ class MyNotes {
       content: noteBodyField.value,
     };
 
-    console.log({body});
+    console.log({ body });
 
     fetch(`${universityData.root_url}/wp-json/wp/v2/note/${id}`, {
       method: "POST",
       headers: {
         "X-WP-Nonce": universityData.nonce,
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     })
