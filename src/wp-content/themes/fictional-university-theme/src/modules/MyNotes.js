@@ -9,20 +9,21 @@ class MyNotes {
      */
     const deleteNotes = document.querySelectorAll(".delete-note");
 
-    deleteNotes.forEach((deleteNote) => {
+    document.getElementById('my-notes').addEventListener('click', (event) => {
       /**
-       * @type {HTMLLIElement}
+       * @type {HTMLSpanElement}
        */
-      const parent = deleteNote.parentElement;
-      deleteNote.addEventListener("click", this.deleteNote.bind(this, parent));
-      parent
-        .querySelector(".edit-note")
-        .addEventListener("click", this.editNote.bind(this, parent));
+      const target = event.target;
+      const parent = target.parentElement;
 
-      parent
-        .querySelector(".update-note")
-        .addEventListener("click", this.updateNote.bind(this, parent));
-    });
+      if(target.classList.contains('delete-note')) {
+        this.deleteNote(parent);
+      } else if(target.classList.contains('edit-note')) {
+        this.editNote(parent);
+      } else if(target.classList.contains('update-note')) {
+        this.updateNote(parent);
+      }
+    })
 
     document
       .querySelector(".submit-note")
@@ -55,17 +56,44 @@ class MyNotes {
     })
       .then((res) => res.json())
       .then((data) => {
+        /**
+         * @type {number}
+         */
+        const id = data.id;
+
         titleInput.value = '';
         bodyInput.value = '';
         const newListItem = document.createElement('li');
+        newListItem.setAttribute('data-id', id.toString())
 
         const newTitleInput = document.createElement('input');
         newTitleInput.classList.add('note-title-field');
         newTitleInput.setAttribute('type', 'text');
         newTitleInput.setAttribute('readonly', 'readonly')
-        newTitleInput.value = body.content;
+        newTitleInput.value = body.title;
+
+        const newEditNoteSpan = document.createElement('span');
+        newEditNoteSpan.classList.add('edit-note')
+        newEditNoteSpan.innerHTML = '<i class="fa fa-pencil" aria-hidden="true"></i> Edit';
+
+        const newDeleteNoteSpan = document.createElement('span');
+        newDeleteNoteSpan.classList.add('delete-note');
+        newDeleteNoteSpan.innerHTML = '<i class="fa fa-trash-o" aria-hidden="true"></i> Delete';
+
+        const newTextArea = document.createElement('textarea');
+        newTextArea.setAttribute('readonly', 'readonly');
+        newTextArea.classList.add('note-body-field');
+        newTextArea.value = body.content;
+
+        const newSaveSpan = document.createElement('span');
+        newSaveSpan.classList.add('update-note', 'btn', 'btn--small', 'btn--blue');
+        newSaveSpan.innerHTML = '<i class="fa fa-arrow-right" aria-hidden="true"></i> Save'
 
         newListItem.appendChild(newTitleInput);
+        newListItem.appendChild(newEditNoteSpan);
+        newListItem.appendChild(newDeleteNoteSpan);
+        newListItem.appendChild(newTextArea);
+        newListItem.appendChild(newSaveSpan);
 
         document.getElementById('my-notes').prepend(newListItem);
       })
