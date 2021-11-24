@@ -54,8 +54,13 @@ class MyNotes {
       },
       body: JSON.stringify(body),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        return res.json();
+      })
       .then((data) => {
+        if('code' in data) {
+          throw new Error(data.message);
+        }
         /**
          * @type {number}
          */
@@ -98,7 +103,9 @@ class MyNotes {
         document.getElementById('my-notes').prepend(newListItem);
       })
       .catch((err) => {
-        console.log(err);
+        if(err.message === 'You have reached your note limit.') {
+          document.querySelector('.note-limit-message').classList.add('active');
+        }
       });
   }
 
@@ -233,6 +240,10 @@ class MyNotes {
       .then((data) => {
         liElement.remove();
         console.log("success", data);
+
+        if(data.userNoteCount < 5) {
+          document.querySelector('.note-limit-message').classList.remove('active');
+        }
       })
       .catch((err) => {
         console.log("sorry", err);
