@@ -1,256 +1,152 @@
+import axios from "axios"
+
 class MyNotes {
   constructor() {
-    this.events();
-  }
-
-  events() {
-    /**
-     * @type {NodeListOf<HTMLSpanElement>}
-     */
-    const deleteNotes = document.querySelectorAll(".delete-note");
-
-    document.getElementById('my-notes').addEventListener('click', (event) => {
-      /**
-       * @type {HTMLSpanElement}
-       */
-      const target = event.target;
-      const parent = target.parentElement;
-
-      if(target.classList.contains('delete-note')) {
-        this.deleteNote(parent);
-      } else if(target.classList.contains('edit-note')) {
-        this.editNote(parent);
-      } else if(target.classList.contains('update-note')) {
-        this.updateNote(parent);
-      }
-    })
-
-    document
-      .querySelector(".submit-note")
-      .addEventListener("click", this.createNote);
-  }
-
-  createNote() {
-    /**
-     * @type {HTMLInputElement}
-     */
-    const titleInput = document.querySelector(".new-note-title");
-    /**
-     * @type {HTMLTextAreaElement}
-     */
-    const bodyInput = document.querySelector(".new-note-body");
-
-    const body = {
-      title: titleInput.value,
-      content: bodyInput.value,
-      status: 'publish',
-    };
-
-    fetch(`${universityData.root_url}/wp-json/wp/v2/note`, {
-      method: "POST",
-      headers: {
-        "X-WP-Nonce": universityData.nonce,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        if('code' in data) {
-          throw new Error(data.message);
-        }
-        /**
-         * @type {number}
-         */
-        const id = data.id;
-
-        titleInput.value = '';
-        bodyInput.value = '';
-        const newListItem = document.createElement('li');
-        newListItem.setAttribute('data-id', id.toString())
-
-        const newTitleInput = document.createElement('input');
-        newTitleInput.classList.add('note-title-field');
-        newTitleInput.setAttribute('type', 'text');
-        newTitleInput.setAttribute('readonly', 'readonly')
-        newTitleInput.value = body.title;
-
-        const newEditNoteSpan = document.createElement('span');
-        newEditNoteSpan.classList.add('edit-note')
-        newEditNoteSpan.innerHTML = '<i class="fa fa-pencil" aria-hidden="true"></i> Edit';
-
-        const newDeleteNoteSpan = document.createElement('span');
-        newDeleteNoteSpan.classList.add('delete-note');
-        newDeleteNoteSpan.innerHTML = '<i class="fa fa-trash-o" aria-hidden="true"></i> Delete';
-
-        const newTextArea = document.createElement('textarea');
-        newTextArea.setAttribute('readonly', 'readonly');
-        newTextArea.classList.add('note-body-field');
-        newTextArea.value = body.content;
-
-        const newSaveSpan = document.createElement('span');
-        newSaveSpan.classList.add('update-note', 'btn', 'btn--small', 'btn--blue');
-        newSaveSpan.innerHTML = '<i class="fa fa-arrow-right" aria-hidden="true"></i> Save'
-
-        newListItem.appendChild(newTitleInput);
-        newListItem.appendChild(newEditNoteSpan);
-        newListItem.appendChild(newDeleteNoteSpan);
-        newListItem.appendChild(newTextArea);
-        newListItem.appendChild(newSaveSpan);
-
-        document.getElementById('my-notes').prepend(newListItem);
-      })
-      .catch((err) => {
-        if(err.message === 'You have reached your note limit.') {
-          document.querySelector('.note-limit-message').classList.add('active');
-        }
-      });
-  }
-
-  /**
-   *
-   * @param {HTMLLIElement} liElement
-   */
-  editNote(liElement) {
-    const id = liElement.getAttribute("data-id");
-
-    if (liElement.getAttribute("data-state") === "editable") {
-      this.makeNoteReadonly(liElement);
-    } else {
-      this.makeNoteEditable(liElement);
+    if (document.querySelector("#my-notes")) {
+      axios.defaults.headers.common["X-WP-Nonce"] = universityData.nonce
+      this.myNotes = document.querySelector("#my-notes")
+      this.events()
     }
   }
 
-  /**
-   *
-   * @param {HTMLLIElement} liElement
-   */
-  updateNote(liElement) {
-    const id = liElement.getAttribute("data-id");
-
-    /**
-     * @type {HTMLInputElement}
-     */
-    const noteTitleField = liElement.querySelector(".note-title-field");
-    /**
-     * @type {HTMLTextAreaElement}
-     */
-    const noteBodyField = liElement.querySelector(".note-body-field");
-
-    const body = {
-      title: noteTitleField.value,
-      content: noteBodyField.value,
-    };
-
-    console.log({ body });
-
-    fetch(`${universityData.root_url}/wp-json/wp/v2/note/${id}`, {
-      method: "POST",
-      headers: {
-        "X-WP-Nonce": universityData.nonce,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        this.makeNoteReadonly(liElement);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  events() {
+    this.myNotes.addEventListener("click", e => this.clickHandler(e))
+    document.querySelector(".submit-note").addEventListener("click", () => this.createNote())
   }
 
-  /**
-   *
-   * @param {HTMLLIElement} liElement
-   */
-  makeNoteEditable(liElement) {
-    /**
-     * @type {HTMLInputElement}
-     */
-    const noteTitleField = liElement.querySelector(".note-title-field");
-    /**
-     * @type {HTMLTextAreaElement}
-     */
-    const noteBodyField = liElement.querySelector(".note-body-field");
-    /**
-     * @type {HTMLSpanElement}
-     */
-    const editNoteSpan = liElement.querySelector(".edit-note");
-    const updateNoteButton = liElement.querySelector(".update-note");
-
-    noteTitleField.removeAttribute("readonly");
-    noteBodyField.removeAttribute("readonly");
-    noteTitleField.classList.add("note-active-field");
-    noteBodyField.classList.add("note-active-field");
-    updateNoteButton.classList.add("update-note--visible");
-    editNoteSpan.innerHTML =
-      '<i class="fa fa-times" aria-hidden="true"></i> Cancel';
-    liElement.setAttribute("data-state", "editable");
+  clickHandler(e) {
+    if (e.target.classList.contains("delete-note") || e.target.classList.contains("fa-trash-o")) this.deleteNote(e)
+    if (e.target.classList.contains("edit-note") || e.target.classList.contains("fa-pencil") || e.target.classList.contains("fa-times")) this.editNote(e)
+    if (e.target.classList.contains("update-note") || e.target.classList.contains("fa-arrow-right")) this.updateNote(e)
   }
 
-  /**
-   *
-   * @param {HTMLLIElement} liElement
-   */
-  makeNoteReadonly(liElement) {
-    /**
-     * @type {HTMLInputElement}
-     */
-    const noteTitleField = liElement.querySelector(".note-title-field");
-    /**
-     * @type {HTMLTextAreaElement}
-     */
-    const noteBodyField = liElement.querySelector(".note-body-field");
-    /**
-     * @type {HTMLSpanElement}
-     */
-    const editNoteSpan = liElement.querySelector(".edit-note");
-    const updateNoteButton = liElement.querySelector(".update-note");
-
-    noteTitleField.setAttribute("readonly", "readonly");
-    noteBodyField.setAttribute("readonly", "readonly");
-    noteTitleField.classList.remove("note-active-field");
-    noteBodyField.classList.remove("note-active-field");
-    updateNoteButton.classList.remove("update-note--visible");
-    editNoteSpan.innerHTML =
-      '<i class="fa fa-pencil" aria-hidden="true"></i> Edit';
-    liElement.removeAttribute("data-state");
-  }
-  /**
-   *
-   * @param {HTMLLIElement} liElement
-   */
-  deleteNote(liElement) {
-    const id = liElement.getAttribute("data-id");
-
-    fetch(`${universityData.root_url}/wp-json/wp/v2/note/${id}`, {
-      method: "DELETE",
-      headers: {
-        "X-WP-Nonce": universityData.nonce,
-      },
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        liElement.remove();
-        console.log("success", data);
-
-        if(data.userNoteCount < 5) {
-          document.querySelector('.note-limit-message').classList.remove('active');
-        }
-      })
-      .catch((err) => {
-        console.log("sorry", err);
-      });
+  findNearestParentLi(el) {
+    let thisNote = el
+    while (thisNote.tagName != "LI") {
+      thisNote = thisNote.parentElement
+    }
+    return thisNote
   }
 
   // Methods will go here
+  editNote(e) {
+    const thisNote = this.findNearestParentLi(e.target)
+
+    if (thisNote.getAttribute("data-state") == "editable") {
+      this.makeNoteReadOnly(thisNote)
+    } else {
+      this.makeNoteEditable(thisNote)
+    }
+  }
+
+  makeNoteEditable(thisNote) {
+    thisNote.querySelector(".edit-note").innerHTML = '<i class="fa fa-times" aria-hidden="true"></i> Cancel'
+    thisNote.querySelector(".note-title-field").removeAttribute("readonly")
+    thisNote.querySelector(".note-body-field").removeAttribute("readonly")
+    thisNote.querySelector(".note-title-field").classList.add("note-active-field")
+    thisNote.querySelector(".note-body-field").classList.add("note-active-field")
+    thisNote.querySelector(".update-note").classList.add("update-note--visible")
+    thisNote.setAttribute("data-state", "editable")
+  }
+
+  makeNoteReadOnly(thisNote) {
+    thisNote.querySelector(".edit-note").innerHTML = '<i class="fa fa-pencil" aria-hidden="true"></i> Edit'
+    thisNote.querySelector(".note-title-field").setAttribute("readonly", "true")
+    thisNote.querySelector(".note-body-field").setAttribute("readonly", "true")
+    thisNote.querySelector(".note-title-field").classList.remove("note-active-field")
+    thisNote.querySelector(".note-body-field").classList.remove("note-active-field")
+    thisNote.querySelector(".update-note").classList.remove("update-note--visible")
+    thisNote.setAttribute("data-state", "cancel")
+  }
+
+  async deleteNote(e) {
+    const thisNote = this.findNearestParentLi(e.target)
+
+    try {
+      const response = await axios.delete(universityData.root_url + "/wp-json/wp/v2/note/" + thisNote.getAttribute("data-id"))
+      thisNote.style.height = `${thisNote.offsetHeight}px`
+      setTimeout(function () {
+        thisNote.classList.add("fade-out")
+      }, 20)
+      setTimeout(function () {
+        thisNote.remove()
+      }, 401)
+      if (response.data.userNoteCount < 5) {
+        document.querySelector(".note-limit-message").classList.remove("active")
+      }
+    } catch (e) {
+      console.log("Sorry")
+    }
+  }
+
+  async updateNote(e) {
+    const thisNote = this.findNearestParentLi(e.target)
+
+    var ourUpdatedPost = {
+      "title": thisNote.querySelector(".note-title-field").value,
+      "content": thisNote.querySelector(".note-body-field").value
+    }
+
+    try {
+      const response = await axios.post(universityData.root_url + "/wp-json/wp/v2/note/" + thisNote.getAttribute("data-id"), ourUpdatedPost)
+      this.makeNoteReadOnly(thisNote)
+    } catch (e) {
+      console.log("Sorry")
+    }
+  }
+
+  async createNote() {
+    var ourNewPost = {
+      "title": document.querySelector(".new-note-title").value,
+      "content": document.querySelector(".new-note-body").value,
+      "status": "publish"
+    }
+
+    try {
+      const response = await axios.post(universityData.root_url + "/wp-json/wp/v2/note/", ourNewPost)
+
+      if (response.data != "You have reached your note limit.") {
+        document.querySelector(".new-note-title").value = ""
+        document.querySelector(".new-note-body").value = ""
+        document.querySelector("#my-notes").insertAdjacentHTML(
+          "afterbegin",
+          ` <li data-id="${response.data.id}" class="fade-in-calc">
+            <input readonly class="note-title-field" value="${response.data.title.raw}">
+            <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+            <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
+            <textarea readonly class="note-body-field">${response.data.content.raw}</textarea>
+            <span class="update-note btn btn--blue btn--small"><i class="fa fa-arrow-right" aria-hidden="true"></i> Save</span>
+          </li>`
+        )
+
+        // notice in the above HTML for the new <li> I gave it a class of fade-in-calc which will make it invisible temporarily so we can count its natural height
+
+        let finalHeight // browser needs a specific height to transition to, you can't transition to 'auto' height
+        let newlyCreated = document.querySelector("#my-notes li")
+
+        // give the browser 30 milliseconds to have the invisible element added to the DOM before moving on
+        setTimeout(function () {
+          finalHeight = `${newlyCreated.offsetHeight}px`
+          newlyCreated.style.height = "0px"
+        }, 30)
+
+        // give the browser another 20 milliseconds to count the height of the invisible element before moving on
+        setTimeout(function () {
+          newlyCreated.classList.remove("fade-in-calc")
+          newlyCreated.style.height = finalHeight
+        }, 50)
+
+        // wait the duration of the CSS transition before removing the hardcoded calculated height from the element so that our design is responsive once again
+        setTimeout(function () {
+          newlyCreated.style.removeProperty("height")
+        }, 450)
+      } else {
+        document.querySelector(".note-limit-message").classList.add("active")
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 }
 
-export default MyNotes;
+export default MyNotes

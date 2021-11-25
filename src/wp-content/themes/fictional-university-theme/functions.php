@@ -167,7 +167,7 @@ function makeNotePrivate($data, $postarr)
 {
   if($data['post_type'] == 'note') {
     if(count_user_posts(get_current_user_id(), 'note') > 4 && !$postarr['ID']) {
-      wp_die('You have reached your note limit.', 500);
+      die('You have reached your note limit.');
     }
 
     $data['post_content'] = sanitize_textarea_field($data['post_content']);
