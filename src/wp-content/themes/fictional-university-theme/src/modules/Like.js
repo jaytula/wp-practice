@@ -21,18 +21,20 @@ class Like {
     /** @type {HTMLElement} */
     const likeBox = target.closest('.like-box');
     if (likeBox.getAttribute("data-exists") === "yes") {
-      this.deleteLike();
+      this.deleteLike(likeBox);
     } else {
-      this.createLike();
+      this.createLike(likeBox);
     }
   }
 
-  createLike() {
-    fetch(`/wp-json/university/v1/manageLike`, {
+  /** @type {(el: HTMLElement) => void} */
+  createLike(likeBox) {
+    const professorId = likeBox.getAttribute('data-professor')
+    const searchParams = new URLSearchParams();
+    searchParams.set('professorId', professorId);
+
+    fetch(`/wp-json/university/v1/manageLike?${searchParams.toString()}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
     }).then(res => res.json())
     .then(data => {
         console.log(data);
@@ -41,7 +43,8 @@ class Like {
     })
   }
 
-  deleteLike() {
+  /** @type {(el: HTMLElement) => void} */
+  deleteLike(likeBox) {
     fetch(`/wp-json/university/v1/manageLike`, {
         method: 'DELETE',
         headers: {
