@@ -28,11 +28,31 @@ class Like {
   }
 
   createLike() {
-    console.log("createLike()");
+    fetch(`/wp-json/university/v1/manageLike`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+    .then(data => {
+        console.log(data);
+    }).catch(err => {
+        console.log(err);
+    })
   }
 
   deleteLike() {
-    console.log("deleteLike()");
+    fetch(`/wp-json/university/v1/manageLike`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => res.json())
+      .then(data => {
+          console.log(data);
+      }).catch(err => {
+          console.log(err);
+      })
   }
 }
 
