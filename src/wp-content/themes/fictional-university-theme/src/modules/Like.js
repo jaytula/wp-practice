@@ -1,3 +1,5 @@
+import { universityData } from "../globals";
+
 class Like {
   constructor() {
     this.events();
@@ -29,12 +31,16 @@ class Like {
 
   /** @type {(el: HTMLElement) => void} */
   createLike(likeBox) {
+    console.log({universityData})
     const professorId = likeBox.getAttribute('data-professor')
     const searchParams = new URLSearchParams();
     searchParams.set('professorId', professorId);
 
     fetch(`/wp-json/university/v1/manageLike?${searchParams.toString()}`, {
       method: 'POST',
+      headers: {
+        'X-WP-Nonce': universityData.nonce
+      }
     }).then(res => res.json())
     .then(data => {
         console.log(data);

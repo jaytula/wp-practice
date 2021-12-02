@@ -1,4 +1,5 @@
 import axios from "axios"
+import { universityData } from "../globals"
 
 class MyNotes {
   constructor() {

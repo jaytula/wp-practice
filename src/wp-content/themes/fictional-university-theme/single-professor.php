@@ -11,20 +11,24 @@ $likeCount = new WP_Query(array(
     ))
 ));
 
-$existsQuery = new WP_Query(array(
-    'author' => get_current_user_id(),
-    'post_type' => 'like',
-    'meta_query' => array(
-       array(
-        'key' => 'liked_professor_id',
-        'compare' => '=',
-        'value' => get_the_ID(),
-        'type' => 'numeric'
-       ),
-    )
-));
+$existsStatus = 'no';
 
-$existsStatus = $existsQuery->found_posts ? 'yes' : 'no';
+if (is_user_logged_in()) {
+    $existsQuery = new WP_Query(array(
+        'author' => get_current_user_id(),
+        'post_type' => 'like',
+        'meta_query' => array(
+            array(
+                'key' => 'liked_professor_id',
+                'compare' => '=',
+                'value' => get_the_ID(),
+                'type' => 'numeric'
+            ),
+        )
+    ));
+
+    $existsStatus = $existsQuery->found_posts ? 'yes' : 'no';
+}
 ?>
 
 <?php while (have_posts()) : ?>
