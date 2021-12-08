@@ -1,85 +1,64 @@
-import { universityData } from "../globals";
+import axios from "axios"
 
 class Like {
   constructor() {
-    this.events();
+    if (document.querySelector(".like-box")) {
+      axios.defaults.headers.common["X-WP-Nonce"] = universityData.nonce
+      this.events()
+    }
   }
 
   events() {
-    /** @type {NodeListOf<HTMLSpanElement>} */
-    const likeBoxes = document.querySelectorAll(".like-box");
-
-    for (let likeBox of likeBoxes) {
-      likeBox.addEventListener("click", this.ourClickDispatcher.bind(this));
-    }
+    document.querySelector(".like-box").addEventListener("click", e => this.ourClickDispatcher(e))
   }
 
   // methods
+  ourClickDispatcher(e) {
+    let currentLikeBox = e.target
+    while (!currentLikeBox.classList.contains("like-box")) {
+      currentLikeBox = currentLikeBox.parentElement
+    }
 
-  /** @type {(e: MouseEvent) => void} */
-  ourClickDispatcher(event) {
-    /** @type {HTMLElement} */
-    const target = event.target;
-    /** @type {HTMLElement} */
-    const likeBox = target.closest(".like-box");
-    if (likeBox.getAttribute("data-exists") === "yes") {
-      this.deleteLike(likeBox);
+    if (currentLikeBox.getAttribute("data-exists") == "yes") {
+      this.deleteLike(currentLikeBox)
     } else {
-      this.createLike(likeBox);
+      this.createLike(currentLikeBox)
     }
   }
 
-  /** @type {(el: HTMLElement) => void} */
-  createLike(likeBox) {
-    console.log({ universityData });
-    const professorId = likeBox.getAttribute("data-professor");
-    const searchParams = new URLSearchParams();
-    searchParams.set("professorId", professorId);
-
-    fetch(`/wp-json/university/v1/manageLike?${searchParams.toString()}`, {
-      method: "POST",
-      headers: {
-        "X-WP-Nonce": universityData.nonce,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('yes');
-        likeBox.setAttribute("data-exists", "yes");
-        const likeCount = +likeBox.querySelector('.like-count').textContent;
-        likeBox.querySelector('.like-count').textContent = (likeCount + 1).toString();
-        likeBox.setAttribute('data-like', data);
-        console.log(data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  async createLike(currentLikeBox) {
+    try {
+      const response = await axios.post(universityData.root_url + "/wp-json/university/v1/manageLike", { "professorId": currentLikeBox.getAttribute("data-professor") })
+      if (response.data != "Only logged in users can create a like.") {
+        currentLikeBox.setAttribute("data-exists", "yes")
+        var likeCount = parseInt(currentLikeBox.querySelector(".like-count").innerHTML, 10)
+        likeCount++
+        currentLikeBox.querySelector(".like-count").innerHTML = likeCount
+        currentLikeBox.setAttribute("data-like", response.data)
+      }
+      console.log(response.data)
+    } catch (e) {
+      console.log("Sorry")
+    }
   }
 
-  /** @type {(el: HTMLElement) => void} */
-  deleteLike(likeBox) {
-    fetch(`/wp-json/university/v1/manageLike`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "X-WP-Nonce": universityData.nonce,
-      },
-      body: JSON.stringify({
-        like: likeBox.getAttribute('data-like')
+  async deleteLike(currentLikeBox) {
+    try {
+      const response = await axios({
+        url: universityData.root_url + "/wp-json/university/v1/manageLike",
+        method: 'delete',
+        data: { "like": currentLikeBox.getAttribute("data-like") },
       })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        likeBox.removeAttribute("data-exists");
-        const likeCount = +likeBox.querySelector('.like-count').textContent;
-        likeBox.querySelector('.like-count').textContent = (likeCount - 1).toString();
-        likeBox.removeAttribute('data-like');
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      currentLikeBox.setAttribute("data-exists", "no")
+      var likeCount = parseInt(currentLikeBox.querySelector(".like-count").innerHTML, 10)
+      likeCount--
+      currentLikeBox.querySelector(".like-count").innerHTML = likeCount
+      currentLikeBox.setAttribute("data-like", "")
+      console.log(response.data)
+    } catch (e) {
+      console.log(e)
+    }
   }
 }
 
-export default Like;
+export default Like
